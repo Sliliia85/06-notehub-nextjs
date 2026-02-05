@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Toaster } from 'react-hot-toast';
 import './globals.css';
 import { Header } from '@/components/Header/Header';
 import { Footer } from '@/components/Footer/Footer';
@@ -12,15 +13,14 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      {}
       <body style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <TanStackProvider>
           <Header />
-          {}
-          <div style={{ flex: 1 }}>
+          <main style={{ flex: 1 }}>
             {children}
-          </div>
+          </main>
           <Footer />
+          <Toaster position="top-right" reverseOrder={false} />
         </TanStackProvider>
       </body>
     </html>

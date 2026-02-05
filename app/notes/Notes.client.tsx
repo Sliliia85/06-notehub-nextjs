@@ -20,11 +20,10 @@ export default function NotesClient() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showModal, setShowModal] = useState<boolean>(false);
 
-  // Дебаунс для пошуку
   const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
 
-  // React Query підхоплює префетч за ключами
   const { data, isLoading, isError } = useQuery({
+    // Переконайся, що ці ключі ідентичні тим, що в app/notes/page.tsx
     queryKey: ['notes', currentPage, debouncedSearchQuery],
     queryFn: () =>
       fetchNotes({
@@ -46,7 +45,7 @@ export default function NotesClient() {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setCurrentPage(1);
+    setCurrentPage(1); // Скидаємо на першу сторінку при пошуку
   };
 
   return (
@@ -55,7 +54,8 @@ export default function NotesClient() {
         <Toaster position="top-right" />
         
         <header className={css.toolbar}>
-          <SearchBox onSearch={handleSearch} />
+          {/* Додано value={searchQuery}, щоб інпут був контрольованим */}
+          <SearchBox onSearch={handleSearch} value={searchQuery} />
           
           {totalPages > 1 && (
             <Pagination

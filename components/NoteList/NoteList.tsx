@@ -1,43 +1,52 @@
-import Link from 'next/link';
-import { Note } from '@/types/note';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-hot-toast';
+import type { Note } from '../../types/note';
+import { deleteNote } from '../../lib/api';
 import css from './NoteList.module.css';
 
 interface NoteListProps {
   notes: Note[];
-  onDelete?: (id: string) => void; // Якщо у вас залишилася функція видалення
 }
 
-export const NoteList = ({ notes, onDelete }: NoteListProps) => {
+export default function NoteList({ notes }: NoteListProps) {
+  const queryClient = useQueryClient();
+
+ 
+  const deleteNoteMutation = useMutation({
+    mutationFn: deleteNote,
+    onSuccess: () => {
+      toast.success('Note deleted successfully!');
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+    },
+    onError: (error) => {
+      toast.error(`Error deleting note: ${error.message}`);
+    },
+  });
+
+  const handleDelete = (id: string) => {
+    deleteNoteMutation.mutate(id);
+  };
+
   return (
     <ul className={css.list}>
-      {notes.map((note) => (
+      {notes.map(note => (
         <li key={note.id} className={css.item}>
-          <div className={css.header}>
+          <div className={css.content}>
             <h3 className={css.title}>{note.title}</h3>
+            <p className={css.text}>{note.content}</p>
+            <span className={css.tag}>{note.tag}</span>
           </div>
-          <p className={css.tag}>{note.tag}</p>
-          <p className={css.content}>
-            {note.content.length > 100 
-              ? `${note.content.substring(0, 100)}...` 
-              : note.content}
-          </p>
-          
-          <div className={css.actions}>
-            {/* 1. Посилання на детальну сторінку (додано згідно з ТЗ) */}
-            <Link href={`/notes/${note.id}`} className={css.link}>
-              View details
-            </Link>
-
-            {/* 2. Кнопка видалення (була в ДЗ-5) */}
-            <button 
-              onClick={() => onDelete && onDelete(note.id)} 
-              className={css.deleteBtn}
-            >
-              Delete
-            </button>
-          </div>
+          <button
+            className={css.deleteButton}
+            onClick={() => handleDelete(note.id)}
+            disabled={deleteNoteMutation.isPending}
+          >
+            &times;
+          </button>
         </li>
       ))}
     </ul>
   );
-};
+}
+
+  

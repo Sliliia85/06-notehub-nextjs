@@ -7,8 +7,6 @@ interface ModalProps {
   children: React.ReactNode;
 }
 
- const modalRoot = document.getElementById('modal-root') as HTMLElement;
- const body = document.body; 
 
 export default function Modal({ onClose, children }: ModalProps) {
    useEffect(() => {
@@ -18,10 +16,10 @@ export default function Modal({ onClose, children }: ModalProps) {
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
      document.body.style.overflow = 'hidden';
          return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
     };
   }, [onClose]);

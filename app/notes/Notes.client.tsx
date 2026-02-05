@@ -5,7 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import { useQuery } from '@tanstack/react-query';
 import { useDebounce } from 'use-debounce';
 import css from './Notes.module.css'; 
-import { fetchNotes } from '@/lib/api';
+import { fetchNotes, FetchNotesResponse } from '@/lib/api'; 
 
 import SearchBox from '@/components/SearchBox/SearchBox';
 import Pagination from '@/components/Pagination/Pagination';
@@ -22,8 +22,9 @@ export default function NotesClient() {
 
   const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['notes', { page: currentPage, search: debouncedSearchQuery }],
+ 
+  const { data, isLoading, isError } = useQuery<FetchNotesResponse>({
+    queryKey: ['notes', currentPage, debouncedSearchQuery],
     queryFn: () =>
       fetchNotes({
         page: currentPage,
@@ -34,6 +35,7 @@ export default function NotesClient() {
     staleTime: 5000,
   });
 
+ 
   const notes = data?.items || []; 
   const totalItems = data?.total || 0;
   const totalPages = Math.ceil(totalItems / NOTES_PER_PAGE);
@@ -44,7 +46,7 @@ export default function NotesClient() {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setCurrentPage(1); // Скидаємо на першу сторінку при пошуку
+    setCurrentPage(1);
   };
 
   return (
@@ -53,7 +55,6 @@ export default function NotesClient() {
         <Toaster position="top-right" />
         
         <header className={css.toolbar}>
-          {/* Додано value={searchQuery}, щоб інпут був контрольованим */}
           <SearchBox onSearch={handleSearch} value={searchQuery} />
           
           {totalPages > 1 && (
@@ -72,6 +73,7 @@ export default function NotesClient() {
         {isLoading && <p>Loading, please wait...</p>}
         {isError && <p>Error fetching notes.</p>}
 
+       
         {!isLoading && !isError && notes.length > 0 && (
           <NoteList notes={notes} />
         )}

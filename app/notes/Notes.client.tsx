@@ -23,8 +23,7 @@ export default function NotesClient() {
   const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
 
   const { data, isLoading, isError } = useQuery({
-    // Переконайся, що ці ключі ідентичні тим, що в app/notes/page.tsx
-    queryKey: ['notes', currentPage, debouncedSearchQuery],
+    queryKey: ['notes', { page: currentPage, search: debouncedSearchQuery }],
     queryFn: () =>
       fetchNotes({
         page: currentPage,

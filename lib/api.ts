@@ -17,8 +17,8 @@ axiosInstance.interceptors.request.use((config) => {
 });
 
 export interface FetchNotesResponse {
-  items: Note[];
-  total: number;
+  notes: Note[];
+  totalPages: number;
   page: number;
   perPage: number;
 }

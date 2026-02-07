@@ -16,31 +16,40 @@ interface NoteData {
   title: string;
   content: string;
   tag: NoteTag;
+  updatedAt: string;
 }
 
 const validationSchema = Yup.object().shape({
-  title: Yup.string().required('Title is required'),
-  content: Yup.string().required('Content is required'),
-  tag: Yup.string().required('Tag is required'),
+  title: Yup.string()
+    .min(3, 'Title must be at least 3 characters')
+    .max(50, 'Title must be at most 50 characters')
+    .required('Title is required'),
+  content: Yup.string()
+  .max(500, 'Content must be at most 500 characters')
+    .optional(),
+  tag: Yup.string()
+    .oneOf(['Todo', 'Work', 'Personal', 'Meeting', 'Shopping'], 'Invalid tag')
+    .required('Tag is required'),
 });
 
 const initialValues: NoteData = {
   title: '',
   content: '',
   tag: 'Personal',
+  updatedAt: new Date().toISOString(),
 };
 
 export default function NoteForm({ onClose }: NoteFormProps) {
   const queryClient = useQueryClient();
 
 const createNoteMutation = useMutation({
-    mutationFn: (data: NoteData) => createNote(data as any), 
+    mutationFn: (data: NoteData) => createNote(data), 
     onSuccess: () => {
       toast.success('Note created successfully!');
       queryClient.invalidateQueries({ queryKey: ['notes'] });
       onClose();
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -78,11 +87,12 @@ const createNoteMutation = useMutation({
               <option value="Meeting">Meeting</option>
               <option value="Shopping">Shopping</option>
             </Field>
+            <ErrorMessage className={css.error} name="tag" component="div" />
           </label>
 
           <div className={css.buttonGroup}>
-            <button className={css.submitButton} type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create Note'}
+            <button className={css.submitButton} type="submit" disabled={isSubmitting || createNoteMutation.isPending}>
+              {isSubmitting || createNoteMutation.isPending ? 'Creating...' : 'Create Note'}
             </button>
             <button className={css.cancelButton} type="button" onClick={onClose}>
               Cancel

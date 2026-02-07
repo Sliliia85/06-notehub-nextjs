@@ -6,7 +6,6 @@ export const Footer = () => {
   return (
     <footer className={css.footer}>
       <div className={css.content}>
-        {}
         <p suppressHydrationWarning>
           © {currentYear} NoteHub. All rights reserved.
         </p>
